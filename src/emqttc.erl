@@ -744,6 +744,9 @@ handle_event({connection_lost, Reason}, StateName, State = #state{parent = Paren
 
     Logger:warning("[Client ~s] Connection lost for: ~p", [Name, Reason]),
 
+	Logger:debug("Parent info1: ~p", [process_info(Parent)]),
+	Logger:debug("StateName:~p, TRef:~p", [StateName, TRef]),
+
     %% cancel connack timer first, if connection lost when waiting for connack.
     case {StateName, TRef} of
         {waiting_for_connack, undefined} -> ok;
@@ -751,9 +754,11 @@ handle_event({connection_lost, Reason}, StateName, State = #state{parent = Paren
         _ -> ok
     end,
 
+	Logger:debug("Parent info2: ~p", [process_info(Parent)]),
     %% cancel keepalive
     emqttc_keepalive:cancel(KeepAlive),
 
+	Logger:debug("Parent info3: ~p", [process_info(Parent)]),
     %% tell parent
     Parent ! {mqttc, self(), disconnected},
 
