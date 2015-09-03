@@ -759,8 +759,12 @@ handle_event({connection_lost, Reason}, StateName, State = #state{parent = Paren
     emqttc_keepalive:cancel(KeepAlive),
 
 	Logger:debug("Parent info3: ~p", [process_info(Parent)]),
+	Logger:debug("~n~nSend to Parent:~p~n~n", [Parent]),
+
     %% tell parent
     Parent ! {mqttc, self(), disconnected},
+
+	Logger:debug("~n~n~nParent info4: ~p", [process_info(Parent)]),
 
     try_reconnect(Reason, State#state{socket = undefined, connack_tref = TRef});
 
