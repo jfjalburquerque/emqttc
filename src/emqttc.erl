@@ -822,13 +822,15 @@ handle_info({timeout, puback, MsgId}, StateName,  State) ->
 handle_info({reconnect, timeout}, disconnected, State) ->
     connect(State);
 
-handle_info({keepalive, timeout}, connected, State = #state{proto_state = ProtoState, keepalive = KeepAlive}) ->
+handle_info({keepalive, timeout}, connected, State = #state{proto_state = ProtoState, keepalive = KeepAlive, logger = Logger}) ->
     NewKeepAlive =
     case emqttc_keepalive:resume(KeepAlive) of
-        timeout -> 
+        timeout ->
+			Logger:debug("Keepalive, timeout:~p",[KeepAlive]),
             emqttc_protocol:ping(ProtoState),
             emqttc_keepalive:restart(KeepAlive);
-        {resumed, KeepAlive1} -> 
+        {resumed, KeepAlive1} ->
+			Logger:debug("Keepalive, resumed:~p",[KeepAlive1]),
             KeepAlive1
     end,
     {next_state, connected, State#state{keepalive = NewKeepAlive}};
