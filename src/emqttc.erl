@@ -826,11 +826,9 @@ handle_info({keepalive, timeout}, connected, State = #state{proto_state = ProtoS
     NewKeepAlive =
     case emqttc_keepalive:resume(KeepAlive) of
         timeout ->
-			Logger:debug("Keepalive, timeout:~p",[KeepAlive]),
             emqttc_protocol:ping(ProtoState),
             emqttc_keepalive:restart(KeepAlive);
         {resumed, KeepAlive1} ->
-			Logger:debug("Keepalive, resumed:~p",[KeepAlive1]),
             KeepAlive1
     end,
     {next_state, connected, State#state{keepalive = NewKeepAlive}};
@@ -933,7 +931,8 @@ connect(State = #state{name = Name,
         {ok, Socket, Receiver} ->
             ProtoState1 = emqttc_protocol:set_socket(ProtoState, Socket),
             emqttc_protocol:connect(ProtoState1),
-            KeepAlive = emqttc_keepalive:new({Socket, send_oct}, KeepAliveTime, {keepalive, timeout}),
+			%% FIXME KeepAliveTime - 1 -> updated because have some interval with broker.
+            KeepAlive = emqttc_keepalive:new({Socket, send_oct}, KeepAliveTime-1, {keepalive, timeout}),
             TRef = gen_fsm:start_timer(ConnAckTimeout*1000, connack),
             Logger:info("[Client ~s] connected with ~s:~p", [Name, Host, Port]),
             {next_state, waiting_for_connack, State#state{socket = Socket,
