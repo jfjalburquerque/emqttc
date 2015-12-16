@@ -823,6 +823,7 @@ handle_info({reconnect, timeout}, disconnected, State) ->
     connect(State);
 
 handle_info({keepalive, timeout}, connected, State = #state{proto_state = ProtoState, keepalive = KeepAlive, logger = Logger}) ->
+	emqttc_protocol:ping(ProtoState),	%% Send always ping
     NewKeepAlive =
     case emqttc_keepalive:resume(KeepAlive) of
         timeout ->
