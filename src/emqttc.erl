@@ -932,7 +932,7 @@ connect(State = #state{name = Name,
             ProtoState1 = emqttc_protocol:set_socket(ProtoState, Socket),
             emqttc_protocol:connect(ProtoState1),
 			%% FIXME KeepAliveTime - 1 -> updated because have some interval with broker.
-            KeepAlive = emqttc_keepalive:new({Socket, send_oct}, KeepAliveTime-1, {keepalive, timeout}),
+            KeepAlive = emqttc_keepalive:new({Socket, send_oct}, KeepAliveTime, {keepalive, timeout}),
             TRef = gen_fsm:start_timer(ConnAckTimeout*1000, connack),
             Logger:info("[Client ~s] connected with ~s:~p", [Name, Host, Port]),
             {next_state, waiting_for_connack, State#state{socket = Socket,
